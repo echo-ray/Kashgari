@@ -151,7 +151,7 @@ class ALBERTEmbedding(Embedding):
         """
         if len(self.processor.token2idx) == 0:
             self._build_token2idx_from_bert()
-        super(BERTEmbedding, self).analyze_corpus(x, y)
+        super(ALBERTEmbedding, self).analyze_corpus(x, y)
 
     def embed(self,
               sentence_list: Union[Tuple[List[List[str]], ...], List[List[str]]],
@@ -206,9 +206,9 @@ if __name__ == "__main__":
 
     # bert_model_path = os.path.join(utils.get_project_path(), 'tests/test-data/bert')
 
-    b = BERTEmbedding(task=kashgari.CLASSIFICATION,
-                      model_folder='/Users/brikerman/.kashgari/embedding/bert/chinese_L-12_H-768_A-12',
-                      sequence_length=12)
+    b = ALBERTEmbedding(task=kashgari.CLASSIFICATION,
+                        model_folder='/Users/brikerman/.kashgari/embedding/bert/chinese_L-12_H-768_A-12',
+                        sequence_length=12)
 
     from kashgari.corpus import SMP2018ECDTCorpus
 
