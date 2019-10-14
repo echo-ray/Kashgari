@@ -18,23 +18,28 @@ You could easily switch from one model to another just by changing one line of c
 
 Kashgari provices basic NER corpus for expirement. You could also use your corpus in any language for training.
 
-Load build-in corpus.
-
 ```python
-# For Chinese
+# Load build-in corpus.
+## For Chinese
 from kashgari.corpus import ChineseDailyNerCorpus
 
 train_x, train_y = ChineseDailyNerCorpus.load_data('train')
 valid_x, valid_y = ChineseDailyNerCorpus.load_data('valid')
 test_x, test_y = ChineseDailyNerCorpus.load_data('test')
 
-
-# For English
+## For English
 from kashgari.corpus import CONLL2003ENCorpus
 
 train_x, train_y = CONLL2003ENCorpus.load_data('train')
 valid_x, valid_y = CONLL2003ENCorpus.load_data('valid')
 test_x, test_y = CONLL2003ENCorpus.load_data('test')
+
+# Or use your own corpus
+train_x = [['Hello', 'world'], ['Hello', 'Kashgari'], ['I', 'love', 'Beijing']]
+train_y = [['O', 'O'], ['O', 'B-PER'], ['O', 'B-LOC']]
+
+valid_x, valid_y = train_x, train_y
+test_x, test_x = train_x, train_y
 ```
 
 Or use your own corpus, it needs to be tokenized like this.
@@ -66,6 +71,10 @@ model.save('saved_ner_model')
 # Load saved model
 loaded_model = kashgari.utils.load_model('saved_ner_model')
 loaded_model.predict(test_x[:10])
+
+# To continue training, compile the newly loaded model first
+loaded_model.compile_model()
+model.fit(train_x, train_y, valid_x, valid_y)
 ```
 
 That's all your need to do. Easy right.
@@ -102,6 +111,31 @@ print(hyper)
 hyper['layer_blstm']['units'] = 32
 
 model = BLSTMModel(hyper_parameters=hyper)
+```
+
+## Use custom optimizer
+
+Kashgari already supports using customized optimizer, like RAdam.
+
+```python
+from kashgari.corpus import SMP2018ECDTCorpus
+from kashgari.tasks.classification import BiLSTM_Model
+# Remember to import kashgari before than RAdam
+from keras_radam import RAdam
+
+train_x, train_y = SMP2018ECDTCorpus.load_data('train')
+valid_x, valid_y = SMP2018ECDTCorpus.load_data('valid')
+test_x, test_y = SMP2018ECDTCorpus.load_data('test')
+
+model = BiLSTM_Model()
+# This step will build token dict, label dict and model structure
+model.build_model(train_x, train_y, valid_x, valid_y)
+# Compile model with custom optimizer, you can also customize loss and metrics.
+optimizer = RAdam()
+model.compile_model(optimizer=optimizer)
+
+# Train model 
+model.fit(train_x, train_y, valid_x, valid_y)
 ```
 
 ## Use callbacks
@@ -182,7 +216,7 @@ class DoubleBLSTMModel(BaseLabelingModel):
         """
         build model architectural
         """
-        output_dim = len(self.pre_processor.label2idx)
+        output_dim = len(self.processor.label2idx)
         config = self.hyper_parameters
         embed_model = self.embedding.embed_model
 
@@ -212,6 +246,15 @@ class DoubleBLSTMModel(BaseLabelingModel):
 
 model = DoubleBLSTMModel()
 model.fit(train_x, train_y, valid_x, valid_y)
+```
+
+## Speed up using CuDNN cell
+
+You can speed up training and inferencing process using [CuDNN cell](https://stackoverflow.com/questions/46767001/what-is-cudnn-implementation-of-rnn-cells-in-tensorflow). CuDNNLSTM and CuDNNGRU layers are much faster than LSTM and GRU layer, but they must be used on GPU. If you want to train on GPU and inferencing on CPU, you cannot use CuDNN cells.
+
+```python
+# Enable use cudnn cell
+kashgari.config.use_cudnn_cell = True
 ```
 
 ## Performance report

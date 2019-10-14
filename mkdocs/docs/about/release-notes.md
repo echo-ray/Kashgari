@@ -16,6 +16,27 @@ pip show kashgari-tf
 
 ## Current Release
 
+### [0.5.4] - 2019.09.30
+
+- ✨ Add shuffle parameter to fit function ([#249])
+- ✨ Improved type hinting for loaded model ([#248])
+- 🐛 Fix loading models with CRF layers ([#244], [#228])
+- 🐛 Fix the configuration changes during embedding save/load ([#224])
+- 🐛 Fix stacked embedding save/load ([#224])
+- 🐛 Fix evaluate function where the list has int instead of str ([#222])
+- 💥 Renaming model.pre_processor to model.processor
+- 🚨 Removing TensorFlow and numpy warnings
+- 📝 Add docs how to specify which CPU or GPU
+- 📝 Add docs how to compile model with custom optimizer
+
+### [0.5.3] - 2019.08.11
+
+- 🐛 Fixing CuDNN Error ([#198])
+
+### [0.5.2] - 2019.08.10
+
+- 💥 Add CuDNN Cell config, disable auto CuDNN cell. ([#182], [#198])
+
 ### [0.5.1] - 2019.07.15
 
 - 📝 Rewrite documents with mkdocs
@@ -92,8 +113,19 @@ pip show kashgari-tf
 - fix classification model evaluate result output
 - change test settings
 
+[0.5.4]: https://github.com/BrikerMan/Kashgari/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/BrikerMan/Kashgari/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/BrikerMan/Kashgari/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/BrikerMan/Kashgari/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/BrikerMan/Kashgari/compare/milestone/tf.keras...v0.5.0
 [0.2.6]: https://github.com/BrikerMan/Kashgari/compare/v0.2.4...v0.2.6
 [0.2.4]: https://github.com/BrikerMan/Kashgari/compare/v0.2.1...v0.2.4
 [0.2.1]: https://github.com/BrikerMan/Kashgari/compare/v0.2.0...v0.2.1
+
+[#182]: https://github.com/BrikerMan/Kashgari/issues/182
+[#198]: https://github.com/BrikerMan/Kashgari/issues/198
+[#224]: https://github.com/BrikerMan/Kashgari/issues/224
+[#228]: https://github.com/BrikerMan/Kashgari/issues/228
+[#244]: https://github.com/BrikerMan/Kashgari/issues/244
+[#248]: https://github.com/BrikerMan/Kashgari/issues/248
+[#249]: https://github.com/BrikerMan/Kashgari/issues/249

@@ -25,14 +25,20 @@ You could easily switch from one model to another just by changing one line of c
 
 Kashgari provices basic intent-classification corpus for expirement. You could also use your corpus in any language for training.
 
-Load build-in corpus.
-
 ```python
+# Load build-in corpus.
 from kashgari.corpus import SMP2018ECDTCorpus
 
 train_x, train_y = SMP2018ECDTCorpus.load_data('train')
 valid_x, valid_y = SMP2018ECDTCorpus.load_data('valid')
 test_x, test_y = SMP2018ECDTCorpus.load_data('test')
+
+# Or use your own corpus
+train_x = [['Hello', 'world'], ['Hello', 'Kashgari']]
+train_y = ['a', 'b']
+
+valid_x, valid_y = train_x, train_y
+test_x, test_x = train_x, train_y
 ```
 
 Then train our first model. All models provided some APIs, so you could use any labeling model here.
@@ -56,6 +62,10 @@ model.save('saved_classification_model')
 # Load saved model
 loaded_model = kashgari.utils.load_model('saved_classification_model')
 loaded_model.predict(test_x[:10])
+
+# To continue training, compile the newly loaded model first
+loaded_model.compile_model()
+model.fit(train_x, train_y, valid_x, valid_y)
 ```
 
 That's all your need to do. Easy right.
@@ -73,7 +83,7 @@ import logging
 logging.basicConfig(level='DEBUG')
 
 bert_embed = BERTEmbedding('<PRE_TRAINED_BERT_MODEL_FOLDER>',
-                           task=kashgari.LABELING,
+                           task=kashgari.CLASSIFICATION,
                            sequence_length=100)
 model = BiGRU_Model(bert_embed)
 model.fit(train_x, train_y, valid_x, valid_y)
@@ -95,6 +105,31 @@ print(hyper)
 hyper['layer_bi_lstm']['units'] = 32
 
 model = BiLSTM_Model(hyper_parameters=hyper)
+```
+
+## Use custom optimizer
+
+Kashgari already supports using customized optimizer, like RAdam.
+
+```python
+from kashgari.corpus import SMP2018ECDTCorpus
+from kashgari.tasks.classification import BiLSTM_Model
+# Remember to import kashgari before than RAdam
+from keras_radam import RAdam
+
+train_x, train_y = SMP2018ECDTCorpus.load_data('train')
+valid_x, valid_y = SMP2018ECDTCorpus.load_data('valid')
+test_x, test_y = SMP2018ECDTCorpus.load_data('test')
+
+model = BiLSTM_Model()
+# This step will build token dict, label dict and model structure
+model.build_model(train_x, train_y, valid_x, valid_y)
+# Compile model with custom optimizer, you can also customize loss and metrics.
+optimizer = RAdam()
+model.compile_model(optimizer=optimizer)
+
+# Train model 
+model.fit(train_x, train_y, valid_x, valid_y)
 ```
 
 ## Use callbacks
@@ -136,7 +171,7 @@ Let's assume we have a dataset like this.
 
 ```python
 x = [
-   ['This','news',are',very','well','organized'],
+   ['This','news','are' , 'very','well','organized'],
    ['What','extremely','usefull','tv','show'],
    ['The','tv','presenter','were','very','well','dress'],
    ['Multi-class', 'classification', 'means', 'a', 'classification', 'task', 'with', 'more', 'than', 'two', 'classes']
@@ -216,7 +251,7 @@ class DoubleBLSTMModel(BaseClassificationModel):
         """
         build model architectural
         """
-        output_dim = len(self.pre_processor.label2idx)
+        output_dim = len(self.processor.label2idx)
         config = self.hyper_parameters
         embed_model = self.embedding.embed_model
 
@@ -246,4 +281,13 @@ class DoubleBLSTMModel(BaseClassificationModel):
 
 model = DoubleBLSTMModel()
 model.fit(train_x, train_y, valid_x, valid_y)
+```
+
+## Speed up with CuDNN cell
+
+You can speed up training and inferencing process using [CuDNN cell](https://stackoverflow.com/questions/46767001/what-is-cudnn-implementation-of-rnn-cells-in-tensorflow). CuDNNLSTM and CuDNNGRU layers are much faster than LSTM and GRU layer, but they must be used on GPU. If you want to train on GPU and inferencing on CPU, you cannot use CuDNN cells.
+
+```python
+# Enable use cudnn cell
+kashgari.config.use_cudnn_cell = True
 ```
