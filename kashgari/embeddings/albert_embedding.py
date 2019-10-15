@@ -22,8 +22,7 @@ from kashgari.layers import NonMaskingLayer
 from kashgari.embeddings.base_embedding import Embedding
 from kashgari.processors.base_processor import BaseProcessor
 import keras_bert
-from bert4keras.bert import load_pretrained_model, set_gelu
-from bert4keras.utils import SimpleTokenizer
+from albert import load_brightmart_albert_zh_checkpoint
 
 
 class ALBERTEmbedding(Embedding):
@@ -97,8 +96,7 @@ class ALBERTEmbedding(Embedding):
 
         self.bert_token2idx = token2idx
         # 传入字典，带有 encode 和 decode 方法
-        # self._tokenizer = keras_bert.Tokenizer(token2idx)
-        self._tokenizer = SimpleTokenizer(token2idx)
+        self._tokenizer = keras_bert.Tokenizer(token2idx)
         self.processor.token2idx = self.bert_token2idx
         self.processor.idx2token = dict([(value, key) for key, value in token2idx.items()])
 
@@ -119,12 +117,7 @@ class ALBERTEmbedding(Embedding):
             #                                                            output_layer_num=self.layer_nums,
             #                                                            training=self.training,
             #                                                            trainable=self.trainable)
-            keep_words = list(self.bert_token2idx.values())
-            bert_model = load_pretrained_model(config_path,
-                                               check_point_path,
-                                               keep_words=keep_words,
-                                               albert=True,
-                                               )
+            bert_model = load_brightmart_albert_zh_checkpoint(self.model_folder)
 
             self._model = tf.keras.Model(bert_model.inputs, bert_model.output)
             bert_seq_len = int(bert_model.output.shape[1])
