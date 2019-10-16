@@ -22,7 +22,7 @@ from kashgari.layers import NonMaskingLayer
 from kashgari.embeddings.base_embedding import Embedding
 from kashgari.processors.base_processor import BaseProcessor
 import keras_bert
-from albert import load_brightmart_albert_zh_checkpoint
+from kashgari.embeddings.albert import load_brightmart_albert_zh_checkpoint
 
 
 class ALBERTEmbedding(Embedding):
