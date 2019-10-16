@@ -210,7 +210,7 @@ def build_albert(token_num,
         else:
             output = transformed_layers[output_layers]
         model = keras.models.Model(inputs=inputs, outputs=output)
-        return model
+        return inputs, output
     model = keras.models.Model(inputs=inputs, outputs=transformed)
     for layer in model.layers:
         layer.trainable = _trainable(layer)

@@ -193,10 +193,11 @@ class BERTEmbedding(Embedding):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    # bert_model_path = os.path.join(utils.get_project_path(), 'tests/test-data/bert')
+    model_path = '/home/ray/Workspace/models/chinese_L-12_H-768_A-12'
 
     b = BERTEmbedding(task=kashgari.CLASSIFICATION,
-                      model_folder='/Users/brikerman/.kashgari/embedding/bert/chinese_L-12_H-768_A-12',
+                      model_folder=model_path,
+                      layer_nums=2,
                       sequence_length=12)
 
     from kashgari.corpus import SMP2018ECDTCorpus

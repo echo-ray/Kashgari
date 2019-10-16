@@ -117,7 +117,12 @@ class ALBERTEmbedding(Embedding):
             #                                                            output_layer_num=self.layer_nums,
             #                                                            training=self.training,
             #                                                            trainable=self.trainable)
-            bert_model = load_brightmart_albert_zh_checkpoint(self.model_folder)
+            output_layers = [-i for i in range(1, self.layer_nums + 1)]
+            bert_model = load_brightmart_albert_zh_checkpoint(self.model_folder,
+                                                              seq_len=self.sequence_length,
+                                                              output_layers=output_layers,
+                                                              training=self.training,
+                                                              trainable=self.trainable)
 
             self._model = tf.keras.Model(bert_model.inputs, bert_model.output)
             bert_seq_len = int(bert_model.output.shape[1])
@@ -198,9 +203,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     # bert_model_path = os.path.join(utils.get_project_path(), 'tests/test-data/bert')
-
+    p = '/home/ray/Workspace/models/albert_tiny'
     b = ALBERTEmbedding(task=kashgari.CLASSIFICATION,
-                        model_folder='/Users/brikerman/.kashgari/embedding/bert/chinese_L-12_H-768_A-12',
+                        model_folder=p,
                         sequence_length=12)
 
     from kashgari.corpus import SMP2018ECDTCorpus
